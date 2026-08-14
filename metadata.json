@@ -1,0 +1,6 @@
+{
+  "name": "«Хранители памяти»",
+  "description": "Возвращаем к жизни семейные воспоминания. Реставрация, оживление и фотомозаики.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
