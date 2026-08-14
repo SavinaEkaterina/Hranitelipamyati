@@ -7,6 +7,30 @@ const cache: Record<string, string> = {};
 
 // Build an in-memory set of all existing static public files
 const KNOWN_FILES = new Set<string>(publicManifest as string[]);
+const BASE_URL = import.meta.env.BASE_URL;
+function withBaseUrl(path: string): string {
+
+if (!path) return '';
+
+if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+
+return path;
+
+}
+
+const cleanBase = BASE_URL.replace(/\/$/, '');
+
+const cleanPath = path.startsWith('/') ? path : '/' + path;
+
+if (cleanBase && cleanBase !== '/' && cleanPath.startsWith(cleanBase + '/')) {
+
+return cleanPath;
+
+}
+
+return cleanBase + cleanPath;
+
+}
 
 /**
  * Checks if a file exists in our in-memory set of public files without any network requests.
@@ -47,8 +71,11 @@ export function getImageUrl(path: string | undefined | null): string {
     return path;
   }
 
-  if (cache[path]) {
-    return cache[path];
+ const result = withBaseUrl(normalized);
+
+cache[path] = result;
+
+return result;
   }
 
   let normalized = path.trim();
@@ -61,8 +88,11 @@ export function getImageUrl(path: string | undefined | null): string {
 
   // If path already points directly to an existing file in public
   if (KNOWN_FILES.has(normalized)) {
-    cache[path] = normalized;
-    return normalized;
+    const result = withBaseUrl(targetUrl);
+
+cache[path] = result;
+
+return result;
   }
 
   // Check if original path had an extension
@@ -82,8 +112,9 @@ export function getImageUrl(path: string | undefined | null): string {
     for (const ext of EXTENSIONS) {
       const targetUrl = candidate + ext;
       if (KNOWN_FILES.has(targetUrl)) {
-        cache[path] = targetUrl;
-        return targetUrl;
+        const result = withBaseUrl(targetUrl);
+      cache[path] = result;
+return result;
       }
     }
   }
@@ -91,8 +122,9 @@ export function getImageUrl(path: string | undefined | null): string {
   // Fallback if file not found in KNOWN_FILES:
   // If an extension was explicitly provided, respect it; otherwise append .webp
   const fallback = hasExtension ? normalized : (basePath.endsWith('.webp') ? basePath : basePath + '.webp');
-  cache[path] = fallback;
-  return fallback;
+  const result = withBaseUrl(fallback);
+ cache[path] = result;
+return result;
 }
 
 /**
