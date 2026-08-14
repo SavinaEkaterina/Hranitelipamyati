@@ -71,12 +71,9 @@ export function getImageUrl(path: string | undefined | null): string {
     return path;
   }
 
- const result = withBaseUrl(normalized);
-
-cache[path] = result;
-
-return result;
-  }
+  if (cache[path]) {
+  return cache[path];
+}
 
   let normalized = path.trim();
   if (normalized.startsWith('/public')) {
@@ -88,7 +85,7 @@ return result;
 
   // If path already points directly to an existing file in public
   if (KNOWN_FILES.has(normalized)) {
-    const result = withBaseUrl(targetUrl);
+    const result = withBaseUrl(normalized);
 
 cache[path] = result;
 
